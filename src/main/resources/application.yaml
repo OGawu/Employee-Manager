@@ -1,0 +1,75 @@
+spring:
+  application:
+    name: employee_management
+  datasource:
+    url: jdbc:postgresql://localhost:5432/employee_management
+    username: postgres
+    password: 3011
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+
+server:
+  error:
+    include-message: always
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#server:
+#  port: 8091
+#  error:
+#      include-message: always
+#
+#spring:
+#  application:
+#    name: employee
+#  datasource:
+#    url: jdbc:postgresql://localhost:5432/ga
+#    username: postgres
+#    password: 3011
+#  jpa:
+#    hibernate:
+#      ddl-auto: create-drop
+#    show-sql: true
+#    properties:
+#      hibernate:
+#        format_sql: true
+#mvc:
+#  pathmatch:
+#    matching-strategy: ANT_PATH_MATCHER

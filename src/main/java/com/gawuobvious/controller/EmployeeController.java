@@ -1,6 +1,8 @@
 package com.gawuobvious.controller;
 
 import com.gawuobvious.model.Employee;
+import com.gawuobvious.service.employee.EmployeeService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -18,12 +20,18 @@ import static org.springframework.http.HttpStatus.*;
 @RequestMapping("/api/v1/employees")
 public class EmployeeController {
 
+    private  final EmployeeService employeeService;
+
+
+ 
+    public EmployeeController(EmployeeService employeeService) {
+        this.employeeService = employeeService;
+    }
+
     @GetMapping(value = "/{employeeId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Employee> getEmployeeById(@PathVariable String employeeId) {
 
-        // first find the record/employee by id
-
-        Employee employee1 = getDemoEmployees().stream().filter(employee -> employee.getEmployeeId().equals(employeeId)).findFirst().orElse(null);
+        Employee employee1 = employeeService.getEmployeeById(employeeId);
 
         if (employee1 == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
@@ -47,39 +55,14 @@ public class EmployeeController {
 //                .build();
 //    }
 
-    private Employee demoEmployee(String employeeId, String employeeUserName,
-                                  String employeeFirstName,
-                                  String employeeLastName,
-                                  Integer employeeAge) {
-        return Employee.builder()
-                .employeeId(employeeId)
-                .employeeUserName(employeeUserName)
-                .employeeFirstName(employeeFirstName)
-                .employeeLastName(employeeLastName)
-                .employeeAge(employeeAge)
-                .roles(Arrays.asList("developer","manager"))
-                .build();
-    }
-
-    private List<Employee> getDemoEmployees() {
-
-        List<Employee> demoEmployees = new ArrayList<>();
-        demoEmployees.add(demoEmployee("1","OG","Obvious","Gawu",24));
-        demoEmployees.add(demoEmployee("2","BM","Brian","Musina",25));
-        demoEmployees.add(demoEmployee("3","PM","Pride","Madondo",26));
-        demoEmployees.add(demoEmployee("4","RM","Rudo","Mahona",20));
-        demoEmployees.add(demoEmployee("5","JB","Joachim","Baradze",27));
-
-        return demoEmployees;
-    }
 
 
     @GetMapping("/search-by-employee-name")
-    public ResponseEntity<List<Employee>> getEmployeeByByFirstName(@RequestParam String employeeFirstName) {
+    public ResponseEntity<List<Employee>> getEmployeeByByFirstName(@RequestParam String employeeFirstName, @RequestHeader("X-API-KEY") String apiKey) {
 
-        List<Employee> employeeList = getDemoEmployees().stream().filter(employee -> employee.getEmployeeFirstName().equalsIgnoreCase(employeeFirstName)).collect(Collectors.toList());
 
-        return ResponseEntity.ok(employeeList);
+
+        return ResponseEntity.ok(employeeService.findEmployeeByFirstName(employeeFirstName));
 
     }
 
@@ -88,13 +71,8 @@ public class EmployeeController {
     @DeleteMapping(value = "/{employeeId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Employee> deleteEmployeeById(@PathVariable String employeeId) {
 
-        // first find the record/employee by id, if it exists then delete the record
+        employeeService.deleteEmployeeById(employeeId);
 
-        Employee employee1 = getDemoEmployees().stream().filter(employee -> employee.getEmployeeId().equals(employeeId)).findFirst().orElse(null);
-
-        if (employee1 == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
         return ResponseEntity.status(HttpStatus.OK).build();
 
     }
@@ -103,21 +81,14 @@ public class EmployeeController {
     @PostMapping
     public ResponseEntity<Employee> createEmployee(@RequestBody Employee employee) {
 
-        /* check if the username exists
-        throw an exception that the employee already exist
-
-        or create a new employee
-         */
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(employee);
+        return ResponseEntity.status(HttpStatus.CREATED).body(employeeService.createEmployee(employee));
     }
 
     @PutMapping("{employeeId}")
     public ResponseEntity<Employee> updateEmployee(@PathVariable String employeeId, @RequestBody Employee employee) {
 
-        // first find the record/employee by id, if it exists then update the record
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(employee);
+        return ResponseEntity.status(HttpStatus.CREATED).body(employeeService.updateEmployee(employeeId, employee));
     }
 
 
